@@ -74,54 +74,54 @@ const getDoctors2 = async () => {
 };
 
 //puppeteer session başlat
-const getDoctors3 = async () => {
-  const browser = await puppeteer.launch({
-    headless: false,
-    defaultViewport: null,
-  });
+// const getDoctors3 = async () => {
+//   const browser = await puppeteer.launch({
+//     headless: false,
+//     defaultViewport: null,
+//   });
 
-  const data = [];
+//   const data = [];
 
-  try {
-    const sayfa = await browser.newPage();
+//   try {
+//     const sayfa = await browser.newPage();
 
-    await sayfa.goto("https://www.kttb.org/doktorlarimiz/", {
-      waitUntil: "domcontentloaded",
-    });
+//     await sayfa.goto("https://www.kttb.org/doktorlarimiz/", {
+//       waitUntil: "domcontentloaded",
+//     });
 
-    let hasNextPage = true;
-    while (hasNextPage) {
-      const docCont = await sayfa.evaluate(() => {
-        const docName = document.querySelectorAll(".tablepress-31 > tbody > tr");
-        return Array.from(docName).map((kimlik) => {
-          const isim = kimlik.querySelector(".column-1")?.innerText?.replace(/\n/g, "") || "info is not specified";
-          const brans = kimlik.querySelector(".column-2")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          const numara = kimlik.querySelector(".column-3")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          const bölge = kimlik.querySelector(".column-4")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          return {isim, brans, numara, bölge};
-        });
-      });
+//     let hasNextPage = true;
+//     while (hasNextPage) {
+//       const docCont = await sayfa.evaluate(() => {
+//         const docName = document.querySelectorAll(".tablepress-31 > tbody > tr");
+//         return Array.from(docName).map((kimlik) => {
+//           const isim = kimlik.querySelector(".column-1")?.innerText?.replace(/\n/g, "") || "info is not specified";
+//           const brans = kimlik.querySelector(".column-2")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+//           const numara = kimlik.querySelector(".column-3")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+//           const bölge = kimlik.querySelector(".column-4")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+//           return {isim, brans, numara, bölge};
+//         });
+//       });
 
-      data.push(...docCont);
+//       data.push(...docCont);
 
-      const nextPage = await sayfa.$(".tablepress-31_paginate > .tablepress-31_next");
-      if (nextPage !== null) {
-        await nextPage.click();
-        await sayfa.waitForNavigation();
-      } else {
-        hasNextPage = false;
-      }
-    }
+//       const nextPage = await sayfa.$(".tablepress-31_paginate > .tablepress-31_next");
+//       if (nextPage !== null) {
+//         await nextPage.click();
+//         await sayfa.waitForNavigation();
+//       } else {
+//         hasNextPage = false;
+//       }
+//     }
 
-    const dataStr = data.map((item) => `${item.isim} - ${item.brans} - ${item.numara} - ${item.bölge}`).join("\n");
-    fs.writeFileSync("DoctorsAll.txt", dataStr);
-    console.log("Data written to file for All Cyprus");
-    } catch (error) {
-    console.error(error);
-    } finally {
-    await browser.close();
-    }
-};
+//     const dataStr = data.map((item) => `${item.isim} - ${item.brans} - ${item.numara} - ${item.bölge}`).join("\n");
+//     fs.writeFileSync("DoctorsAll.txt", dataStr);
+//     console.log("Data written to file for All Cyprus");
+//     } catch (error) {
+//     console.error(error);
+//     } finally {
+//     await browser.close();
+//     }
+// };
 
 
 
@@ -136,12 +136,28 @@ const getDoctors4 = async () => {
     await sayfa.goto("https://www.kttb.org/doktorlarimiz/", {
       waitUntil: "domcontentloaded",
     });
+   
 
       const docCont = await sayfa.evaluate(() => {
-        const docName = document.querySelectorAll(".tablepress-31 > tbody > tr");
+        const docName = document.querySelectorAll(".row-hover > tr");
+        return Array.from(docName).map((kimlik) => {
+          const isim = kimlik.querySelector(".column-1")?.innerText?.replace(/\n/g, "") || "info is not specified";
+          const brans = kimlik.querySelector(".column-2")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          const numara = kimlik.querySelector(".column-3")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          const bölge = kimlik.querySelector(".column-4")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          return {isim, brans, numara, bölge};
         });
+      });
 
-        console.log(docCont);
+      const data = docCont.map((item) => `${item.isim} - ${item.brans} - ${item.numara} - ${item.bölge}`).join("\n");
+      fs.writeFileSync("DoctorsDeneme.txt", data);
+      console.log("Data written to file for Deneme");
+        
+
+
+        // console.log(docCont);
+
+
         await browser.close();
 
 };
