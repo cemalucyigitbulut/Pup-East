@@ -137,17 +137,33 @@ const getDoctors4 = async () => {
       waitUntil: "domcontentloaded",
     });
    
+    let docCont = [];
 
-      const docCont = await sayfa.evaluate(() => {
-        const docName = document.querySelectorAll(".row-hover > tr");
-        return Array.from(docName).map((kimlik) => {
-          const isim = kimlik.querySelector(".column-1")?.innerText?.replace(/\n/g, "") || "info is not specified";
-          const brans = kimlik.querySelector(".column-2")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          const numara = kimlik.querySelector(".column-3")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          const bölge = kimlik.querySelector(".column-4")?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
-          return {isim, brans, numara, bölge};
+    while (true) {
+      const doctors = await sayfa.evaluate(() => {
+        const rows = Array.from(document.querySelectorAll(".row-hover > tr"));
+  
+        return rows.map((row) => {
+          const columns = row.querySelectorAll("td");
+          const isim = columns[0]?.innerText?.replace(/\n/g, "") || "info is not specified";
+          const brans = columns[1]?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          const numara = columns[2]?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          const bölge = columns[3]?.innerText?.replace(/\n/g, "").replace(/(<([^>]+)>)/gi, "") || "info is not specified";
+          return { isim, brans, numara, bölge };
         });
       });
+  
+      docCont = [...docCont, ...doctors];
+  
+      const nextPageBtn = await sayfa.$(".paginate_button.next");
+      const isDisabled = await nextPageBtn.evaluate((btn) => btn.classList.contains("disabled"));
+  
+      if (isDisabled) break;
+  
+      await nextPageBtn.click();
+      await new Promise(r => setTimeout(r, 1000));
+    }
+
 
       const data = docCont.map((item) => `${item.isim} - ${item.brans} - ${item.numara} - ${item.bölge}`).join("\n");
       fs.writeFileSync("DoctorsDeneme.txt", data);
